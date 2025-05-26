@@ -20,7 +20,6 @@ services:
         fonts-kacst \
         fonts-freefont-ttf \
         --no-install-recommends
-      # Install node dependencies
       npm ci --only=production
     startCommand: node server.js
     envVars:

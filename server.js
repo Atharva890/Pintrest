@@ -161,13 +161,6 @@ process.on('SIGTERM', async () => {
     process.exit(0);
 });
 
-// Check Chrome installation
-try {
-    console.log('Chrome installation path:', execSync('which google-chrome-stable').toString());
-} catch (error) {
-    console.error('Chrome not found:', error);
-}
-
 // Update Chrome check
 const checkChrome = async () => {
     try {
