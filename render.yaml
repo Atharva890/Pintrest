@@ -2,7 +2,7 @@ services:
   - type: web
     name: pinterest-infographic
     env: node
-buildCommand: npm ci --only=production && npx playwright install --with-deps
+    buildCommand: npm ci --only=production && npx playwright install --with-deps
     startCommand: node server.js
     envVars:
       - key: NODE_ENV
