@@ -1,6 +1,6 @@
 // server.js
 const express = require('express');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const cors = require('cors');
 const path = require('path');
 
@@ -50,7 +50,7 @@ app.post('/screenshot', async (req, res) => {
                 '--disable-dev-tools' // Add this
             ],
             ignoreHTTPSErrors: true, // Add this
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
         });
 
         const page = await browser.newPage();
@@ -102,6 +102,12 @@ app.post('/screenshot', async (req, res) => {
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Screenshot service is running' });
+});
+
+// Cache control middleware
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+    next();
 });
 
 app.listen(PORT, () => {
