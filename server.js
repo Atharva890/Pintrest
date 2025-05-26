@@ -7,6 +7,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        error: 'Internal Server Error',
+        details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
 // Middleware
 app.use(cors({
     origin: ['https://digitalguruji-q6s4.onrender.com', 'http://localhost:3000'],
@@ -24,7 +33,9 @@ app.get('/', (req, res) => {
 // Screenshot endpoint
 app.post('/screenshot', async (req, res) => {
     let browser;
-    
+    const timeout = 60000; // 60 seconds
+    let timeoutId;
+
     try {
         const { url } = req.body;
         
@@ -36,20 +47,24 @@ app.post('/screenshot', async (req, res) => {
 
         // Launch puppeteer
         browser = await puppeteer.launch({
-            headless: 'new',
+            headless: true, // Change from 'new' to true
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--single-process', // Reduces memory usage
-                '--no-zygote',
                 '--disable-gpu',
                 '--no-first-run',
-                '--disable-extensions', // Add this
-                '--disable-software-rasterizer', // Add this
-                '--disable-dev-tools' // Add this
+                '--disable-extensions',
+                '--disable-software-rasterizer',
+                '--disable-dev-tools',
+                '--window-size=1200,800' // Add window size
             ],
-            ignoreHTTPSErrors: true, // Add this
+            defaultViewport: {
+                width: 1200,
+                height: 800,
+                deviceScaleFactor: 2
+            },
+            ignoreHTTPSErrors: true,
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
         });
 
@@ -60,6 +75,11 @@ app.post('/screenshot', async (req, res) => {
             width: 1200,
             height: 800,
             deviceScaleFactor: 2
+        });
+
+        // Add error listener
+        page.on('error', err => {
+            console.error('Page error:', err);
         });
 
         // Navigate to the URL
@@ -108,6 +128,14 @@ app.get('/health', (req, res) => {
 app.use((req, res, next) => {
     res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
     next();
+});
+
+// Cleanup on exit
+process.on('SIGTERM', async () => {
+    if (browser) {
+        await browser.close();
+    }
+    process.exit(0);
 });
 
 app.listen(PORT, () => {

@@ -7,8 +7,11 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
       - key: PUPPETEER_EXECUTABLE_PATH
         value: /usr/bin/google-chrome-stable
-    buildConfig:
-      packages:
-        - google-chrome-stable
+      - key: FRONTEND_URL
+        value: https://digitalguruji-q6s4.onrender.com
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
