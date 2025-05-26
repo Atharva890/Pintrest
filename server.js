@@ -41,11 +41,15 @@ app.post('/screenshot', async (req, res) => {
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
+                '--single-process', // Reduces memory usage
+                '--no-zygote',
                 '--disable-gpu',
                 '--no-first-run',
-                '--no-zygote',
-                '--single-process'
+                '--disable-extensions', // Add this
+                '--disable-software-rasterizer', // Add this
+                '--disable-dev-tools' // Add this
             ],
+            ignoreHTTPSErrors: true, // Add this
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
         });
 
