@@ -19,7 +19,7 @@ app.use((err, req, res, next) => {
 // Middleware
 app.use(cors({
     origin: [
-        'https://pintrest-1-xc6y.onrender.com', // <-- Updated frontend URL
+        'https://pintrest-sable.vercel.app', // <-- Updated frontend URL
         'http://localhost:3000'
     ],
     methods: ['GET', 'POST'],
