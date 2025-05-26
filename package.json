@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "npm ci --only=production",
-    "dev": "nodemon server.js",
-    "postinstall": "npx playwright install --with-deps"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "screenshot",
