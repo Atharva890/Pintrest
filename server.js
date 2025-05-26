@@ -8,6 +8,19 @@ const { execSync } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Check for required environment variables
+const requiredEnvVars = [
+    'NODE_ENV',
+    'PUPPETEER_EXECUTABLE_PATH',
+    'PUPPETEER_SKIP_CHROMIUM_DOWNLOAD'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+    console.error('Missing required environment variables:', missingEnvVars);
+    process.exit(1);
+}
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -49,25 +62,22 @@ app.post('/screenshot', async (req, res) => {
         // Launch puppeteer
         console.log('Launching browser...');
         browser = await puppeteer.launch({
-            headless: true, // Changed from 'new' to true
+            headless: 'new',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
-                '--disable-software-rasterizer',
-                '--no-first-run',
                 '--no-zygote',
                 '--single-process',
-                '--disable-extensions'
+                '--disable-extensions',
+                '--disable-features=site-per-process',
+                '--disable-software-rasterizer',
+                '--disable-dev-tools',
+                '--enable-features=NetworkService,NetworkServiceInProcess'
             ],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
-            ignoreHTTPSErrors: true,
-            defaultViewport: {
-                width: 1200,
-                height: 800,
-                deviceScaleFactor: 2
-            }
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+            ignoreHTTPSErrors: true
         });
 
         console.log('Browser launched successfully');
@@ -156,16 +166,18 @@ try {
 }
 
 // Add this new endpoint
-app.get('/check-browser', async (req, res) => {
+app.get('/browser-check', async (req, res) => {
     try {
-        const { execSync } = require('child_process');
-        const chromePath = execSync('which google-chrome-stable').toString().trim();
+        const browserWorks = await browserCheck();
+        const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH;
         const exists = require('fs').existsSync(chromePath);
         
         res.json({
+            browserWorks,
             chromePath,
             exists,
-            env: process.env.PUPPETEER_EXECUTABLE_PATH
+            nodeVersion: process.version,
+            platform: process.platform
         });
     } catch (error) {
         res.status(500).json({
