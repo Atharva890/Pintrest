@@ -9,4 +9,4 @@ services:
       - key: PORT
         value: 3000
       - key: FRONTEND_URL
-        value: https://digitalguruji-q6s4.onrender.com
+        value: https://pintrest-0xpe.onrender.com

@@ -8,7 +8,7 @@ async function takeScreenshot() {
         button.disabled = true;
         
         // Use the provided Render URL
-        const apiUrl = 'https://digitalguruji-q6s4.onrender.com/screenshot';
+        const apiUrl = 'https://pintrest-0xpe.onrender.com/screenshot';
         
         const response = await fetch(apiUrl, {
             method: 'POST',

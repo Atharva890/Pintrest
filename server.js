@@ -18,7 +18,10 @@ app.use((err, req, res, next) => {
 
 // Middleware
 app.use(cors({
-    origin: ['https://digitalguruji-q6s4.onrender.com', 'http://localhost:3000'],
+    origin: [
+        'https://pintrest-0xpe.onrender.com',
+        'http://localhost:3000'
+    ],
     methods: ['GET', 'POST'],
     credentials: true
 }));
