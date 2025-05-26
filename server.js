@@ -62,22 +62,25 @@ app.post('/screenshot', async (req, res) => {
         // Launch puppeteer
         console.log('Launching browser...');
         browser = await puppeteer.launch({
-            headless: 'new',
+            headless: true, // Change from 'new' to true
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
+                '--disable-software-rasterizer',
+                '--disable-extensions',
                 '--no-zygote',
                 '--single-process',
-                '--disable-extensions',
-                '--disable-features=site-per-process',
-                '--disable-software-rasterizer',
-                '--disable-dev-tools',
-                '--enable-features=NetworkService,NetworkServiceInProcess'
+                '--window-size=1200,800'
             ],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-            ignoreHTTPSErrors: true
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome',
+            ignoreHTTPSErrors: true,
+            defaultViewport: {
+                width: 1200,
+                height: 800,
+                deviceScaleFactor: 2
+            }
         });
 
         console.log('Browser launched successfully');
@@ -165,19 +168,44 @@ try {
     console.error('Chrome not found:', error);
 }
 
-// Add this new endpoint
+// Update Chrome check
+const checkChrome = async () => {
+    try {
+        const chromePaths = [
+            process.env.PUPPETEER_EXECUTABLE_PATH,
+            '/usr/bin/google-chrome',
+            '/usr/bin/google-chrome-stable'
+        ];
+        
+        for (const path of chromePaths) {
+            if (require('fs').existsSync(path)) {
+                console.log(`Chrome found at: ${path}`);
+                return true;
+            }
+        }
+        console.error('Chrome not found in any expected location');
+        return false;
+    } catch (error) {
+        console.error('Error checking Chrome:', error);
+        return false;
+    }
+};
+
+// Update browser check endpoint
 app.get('/browser-check', async (req, res) => {
     try {
-        const browserWorks = await browserCheck();
+        const chromeExists = await checkChrome();
         const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-        const exists = require('fs').existsSync(chromePath);
         
         res.json({
-            browserWorks,
+            chromeExists,
             chromePath,
-            exists,
             nodeVersion: process.version,
-            platform: process.platform
+            platform: process.platform,
+            env: {
+                NODE_ENV: process.env.NODE_ENV,
+                PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+            }
         });
     } catch (error) {
         res.status(500).json({
