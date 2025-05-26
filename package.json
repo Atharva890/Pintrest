@@ -1,0 +1,30 @@
+{
+  "name": "infographic-screenshot-service",
+  "version": "1.0.0",
+  "description": "Backend service for taking screenshots of the Pinterest infographic website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm install",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "screenshot",
+    "puppeteer",
+    "express",
+    "infographic"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^21.5.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
