@@ -19,7 +19,7 @@ app.use((err, req, res, next) => {
 // Middleware
 app.use(cors({
     origin: [
-        'https://pintrest-0xpe.onrender.com',
+        'https://pintrest-1-xc6y.onrender.com', // <-- Add your frontend URL here
         'http://localhost:3000'
     ],
     methods: ['GET', 'POST'],
