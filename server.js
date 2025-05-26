@@ -46,18 +46,20 @@ app.post('/screenshot', async (req, res) => {
         console.log(`Taking screenshot of: ${url}`);
 
         // Launch puppeteer
+        console.log('Launching browser...');
         browser = await puppeteer.launch({
-            headless: true, // Change from 'new' to true
+            headless: 'new',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
+                '--single-process',
+                '--no-zygote',
                 '--disable-gpu',
                 '--no-first-run',
                 '--disable-extensions',
                 '--disable-software-rasterizer',
-                '--disable-dev-tools',
-                '--window-size=1200,800' // Add window size
+                '--disable-dev-tools'
             ],
             defaultViewport: {
                 width: 1200,
@@ -65,10 +67,13 @@ app.post('/screenshot', async (req, res) => {
                 deviceScaleFactor: 2
             },
             ignoreHTTPSErrors: true,
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
         });
 
+        console.log('Browser launched successfully');
+        console.log('Creating new page...');
         const page = await browser.newPage();
+        console.log('Page created successfully');
         
         // Set viewport size
         await page.setViewport({
@@ -107,10 +112,15 @@ app.post('/screenshot', async (req, res) => {
         console.log('Screenshot taken successfully');
 
     } catch (error) {
-        console.error('Error taking screenshot:', error);
+        console.error('Detailed error:', {
+            message: error.message,
+            stack: error.stack,
+            browserPath: process.env.PUPPETEER_EXECUTABLE_PATH
+        });
         res.status(500).json({ 
             error: 'Failed to take screenshot',
-            details: error.message 
+            details: error.message,
+            path: process.env.PUPPETEER_EXECUTABLE_PATH
         });
     } finally {
         if (browser) {
