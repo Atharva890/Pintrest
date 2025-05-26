@@ -11,6 +11,8 @@ services:
         value: /usr/bin/google-chrome-stable
       - key: PORT
         value: 3000
+      - key: FRONTEND_URL
+        value: https://digitalguruji-q6s4.onrender.com
     buildConfig:
       packages:
         - chromium

@@ -8,7 +8,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: ['https://digitalguruji-q6s4.onrender.com', 'http://localhost:3000'],
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static('public')); // Serve static files
 
