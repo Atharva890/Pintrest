@@ -21,9 +21,6 @@
     "puppeteer-core": "^21.5.2",
     "cors": "^2.8.5"
   },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
   "engines": {
     "node": ">=18.x"
   }

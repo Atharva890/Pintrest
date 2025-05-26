@@ -3,6 +3,7 @@ const express = require('express');
 const puppeteer = require('puppeteer-core');
 const cors = require('cors');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,26 +49,25 @@ app.post('/screenshot', async (req, res) => {
         // Launch puppeteer
         console.log('Launching browser...');
         browser = await puppeteer.launch({
-            headless: 'new',
+            headless: true, // Changed from 'new' to true
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--single-process',
-                '--no-zygote',
                 '--disable-gpu',
-                '--no-first-run',
-                '--disable-extensions',
                 '--disable-software-rasterizer',
-                '--disable-dev-tools'
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process',
+                '--disable-extensions'
             ],
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+            ignoreHTTPSErrors: true,
             defaultViewport: {
                 width: 1200,
                 height: 800,
                 deviceScaleFactor: 2
-            },
-            ignoreHTTPSErrors: true,
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
+            }
         });
 
         console.log('Browser launched successfully');
@@ -146,6 +146,33 @@ process.on('SIGTERM', async () => {
         await browser.close();
     }
     process.exit(0);
+});
+
+// Check Chrome installation
+try {
+    console.log('Chrome installation path:', execSync('which google-chrome-stable').toString());
+} catch (error) {
+    console.error('Chrome not found:', error);
+}
+
+// Add this new endpoint
+app.get('/check-browser', async (req, res) => {
+    try {
+        const { execSync } = require('child_process');
+        const chromePath = execSync('which google-chrome-stable').toString().trim();
+        const exists = require('fs').existsSync(chromePath);
+        
+        res.json({
+            chromePath,
+            exists,
+            env: process.env.PUPPETEER_EXECUTABLE_PATH
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: error.message,
+            stack: error.stack
+        });
+    }
 });
 
 app.listen(PORT, () => {

@@ -10,10 +10,11 @@ services:
       - key: PORT
         value: 3000
       - key: PUPPETEER_EXECUTABLE_PATH
-        value: /usr/bin/google-chrome
+        value: /usr/bin/google-chrome-stable
       - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
         value: "true"
     buildConfig:
       packages:
-        - google-chrome
+        - chromium
+        - chromium-driver
         - fonts-noto-color-emoji
